@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Navagis Exam</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400' rel='stylesheet' type='text/css'>
+    <link href='./css/main.css' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+
+
+<div id="st-container" class="st-container">
+		
+		<div class="outer-container">
+			<h1>Navagis Exam - map using drawing libraries</h1>
+			<div class="inner-container cf">
+				<div class="map-container">
+					<div id="map">
+                  
+                    </div>
+
+                     <div class="filter-set-category">
+						<!--<div>Filter</div>-->
+                        <form>
+
+                            <input type="checkbox" id="c1" name="cc" class="cat-toggle" data-cat="finedining" checked/>
+                            <label class="lab-filter" for="c1"><span></span>Fine Dining</label>
+                       
+                            <input type="checkbox" id="c2" name="cc" class="cat-toggle" data-cat="grill" checked/>
+                            <label  class="lab-filter"  for="c2"><span></span>Grill</label>
+                         
+                            <input type="checkbox" id="r1" name="rr"  class="cat-toggle" data-cat="bakeshop"checked/>
+                            <label  class="lab-filter"  for="r1"><span></span>Bakeshop</label>
+
+         
+                        </form>
+					</div>
+
+
+				</div>
+				
+				<div class="filter-container-lg">
+					<div>
+					
+						<div class="filter-options">
+							<div class="filter-set" style="margin-top:0;">
+                                <button id="btn" class="load-btn button is-success">Select</button>
+								<button id="load-btn" class="load-btn button is-success" onClick="refreshPage()">Reload data</button>
+								<div class="drag-ins">Right click and drag on map </div>
+							</div>
+						
+				
+						</div> <!-- .filter-drawing -->
+                        
+						<div class="filter-options">
+							<div class="filter-set" style="margin-top:0;">
+							 <div id="info">
+							 
+							 </div>
+							</div>
+							
+							
+						</div> <!-- .filter-options-drawing -->
+
+
+					</div> 
+				</div> <!-- .filter-container-lg -->
+				
+			
+			</div> <!-- .inner-container -->
+		</div> <!-- .outer-container -->
+			
+	</div> <!-- #st-container -->
+<div><p>status: 
+    * not yet implemented <br>
+     - get directions <br>
+     - Add any value adding feature <br>
+     - Each restaurant can keep track </p>
+</div>
+<div>Examinee: Jan Francis Israel </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-2.0.3.min.js"><\/script>')</script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBy7BoEev_N4-tS3BL32hO1RiWjRhiXPTg&libraries=drawing&sensor=false"></script>
+
+
+    <script src="js/main.js"></script>
+<script>
+
+function refreshPage(){
+    window.location.reload();
+} 
+
+$(document).ready(function() {
+
+  $('.cat-toggle').click(function() {
+    var cat = $(this).data('cat');  // reads data-cat="..."
+    // toggle
+    for (var i=0; i<locations.length; i++) {
+      if (locations[i].Categorie == cat) {    // goup by Categorie
+        if (locations[i].visible == true) {   // Visible?  turn off
+          locations[i].visible = false;
+          locations[i].marker.setVisible(true);
+          
+        }
+        else {                                // invisible?  turn on
+          locations[i].visible = true;
+          locations[i].marker.setVisible(false);
+        }
+      }
+    }
+  });
+  initialize();
+});
+
+</script>
+  </body>
+</html>

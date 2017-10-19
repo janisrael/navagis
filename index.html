@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Navagis Exam</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400' rel='stylesheet' type='text/css'>
+    <link href='./css/main.css' rel='stylesheet' type='text/css'>
+       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+ <script>
+
+        function calculateRoute(from, to) {
+ 
+        var myOptions = {
+          zoom: 10,
+          center: new google.maps.LatLng(40.84, 14.25),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        // Draw the map
+        var mapObject = new google.maps.Map(document.getElementById("map"), myOptions);
+
+        var directionsService = new google.maps.DirectionsService();
+        var directionsRequest = {
+          origin: from,
+          destination: to,
+          travelMode: google.maps.DirectionsTravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.METRIC
+        };
+        directionsService.route(
+          directionsRequest,
+          function(response, status)
+          {
+            if (status == google.maps.DirectionsStatus.OK)
+            {
+              new google.maps.DirectionsRenderer({
+                map: mapObject,
+                directions: response
+              });
+            }
+            else
+              $("#error").append("Unable to retrieve your route<br />");
+          }
+        );
+      }
+
+function refreshPage(){
+    window.location.reload();
+} 
+
+$(document).ready(function() {
+
+  $('.cat-toggle').click(function() {
+    var cat = $(this).data('cat');  // reads data-cat="..."
+    // toggle
+    for (var i=0; i<locations.length; i++) {
+      if (locations[i].Categorie == cat) {    // goup by Categorie
+        if (locations[i].visible == true) {   // Visible?  turn off
+          locations[i].visible = false;
+          locations[i].marker.setVisible(true);
+          
+        }
+        else {                                // invisible?  turn on
+          locations[i].visible = true;
+          locations[i].marker.setVisible(false);
+        }
+      }
+    }
+  });
+
+
+if (typeof navigator.geolocation == "undefined") {
+          $("#error").text("Your browser doesn't support the Geolocation API");
+          return;
+        }
+
+        $("#from-link, #to-link").click(function(event) {
+          event.preventDefault();
+          var addressId = this.id.substring(0, this.id.indexOf("-"));
+
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+              "location": new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+            },
+            function(results, status) {
+              if (status == google.maps.GeocoderStatus.OK)
+                $("#" + addressId).val(results[0].formatted_address);
+              else
+                $("#error").append("Unable to retrieve your address<br />");
+            });
+          },
+          function(positionError){
+            $("#error").append("Error: " + positionError.message + "<br />");
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10 * 1000 // 10 seconds
+          });
+        });
+
+        $("#calculate-route").submit(function(event) {
+          event.preventDefault();
+          calculateRoute($("#from").val(), $("#to").val());
+        });
+ 
+  $('#from-link').click();
+  initialize();
+});
+
+
+
+
+</script>
+  </head>
+  <body>
+
+
+<div id="st-container" class="st-container">
+		
+		<div class="outer-container">
+			<h1>Navagis Exam - map using drawing libraries</h1>
+			<div class="inner-container cf">
+
+      <form id="calculate-route" name="calculate-route" action="#" method="get" class="temporary-values">
+      <label for="from">From:</label>
+      <input type="text" id="from" name="from" required="required" placeholder="An address" size="30" />
+      <a id="from-link" href="#">Get my position</a>
+      <br />
+
+      <label for="to">To:</label>
+      <input type="text" id="to" name="to" required="required" placeholder="Another address" size="30" />
+      <a id="to-link" href="#">Get my position</a>
+      <br />
+
+      <input type="submit" id="get_direction" />
+      <input type="reset" />
+      </form>
+      <p id="error"></p>
+				<div class="map-container">
+					<div id="map">
+          </div>
+
+         <div class="filter-set-category">
+						<!--<div>Filter</div>-->
+                        <form>
+
+                            <input type="checkbox" id="c1" name="cc" class="cat-toggle" data-cat="finedining" checked/>
+                            <label class="lab-filter" for="c1"><span></span>Fine Dining</label>
+                       
+                            <input type="checkbox" id="c2" name="cc" class="cat-toggle" data-cat="grill" checked/>
+                            <label  class="lab-filter"  for="c2"><span></span>Grill</label>
+                         
+                            <input type="checkbox" id="r1" name="rr"  class="cat-toggle" data-cat="bakeshop"checked/>
+                            <label  class="lab-filter"  for="r1"><span></span>Bakeshop</label>
+
+         
+                        </form>
+					 </div>
+
+
+				</div>
+				
+				<div class="filter-container-lg">
+					<div>
+					
+						<div class="filter-options">
+							<div class="filter-set" style="margin-top:0;">
+                <button id="btn" class="load-btn button is-success">Select</button>
+               
+                <!--<a href="#openModal">Open Modal</a>-->
+								<button id="load-btn" class="load-btn button is-success" onClick="refreshPage()">Reload data</button>
+								<div class="drag-ins">Right click and drag on map </div>
+							</div>
+						
+				
+						</div> <!-- .filter-drawing -->
+                        
+						<div class="filter-options">
+							<div class="filter-set" style="margin-top:0;">
+                <div class="half">
+
+          <div class="tab">
+            <input id="tab-one" type="checkbox" name="tabs" class="accordion">
+            <label for="tab-one" class="filter-label">Selected Items</label>
+            <div class="tab-content">
+            <div id="info">
+                  
+            </div>
+            </div>
+          </div>
+          <div class="tab">
+            <input id="tab-two" type="checkbox" name="tabs" class="accordion">
+            <label for="tab-two"  class="filter-label">Unselected Items</label>
+            <div class="tab-content">
+            <div id="unsel-resto">
+                    
+                    </div>
+            </div>
+          </div>
+        <div class="tab">
+          <input id="tab-three" type="checkbox" name="tabs" class="accordion">
+          <label for="tab-three" class="filter-label">All Items</label>
+            <div class="tab-content">
+          <div id="all-resto">
+                
+          </div>
+
+          </div>
+        </div>
+  </div>
+
+
+							</div>
+							
+							
+						</div> <!-- .filter-options-drawing -->
+
+
+					</div> 
+				</div> <!-- .filter-container-lg -->
+				
+			
+			</div> <!-- .inner-container -->
+		</div> <!-- .outer-container -->
+			
+	</div> <!-- #st-container -->
+
+<div>Examinee: Jan Francis Israel </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-2.0.3.min.js"><\/script>')</script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBy7BoEev_N4-tS3BL32hO1RiWjRhiXPTg&libraries=drawing&sensor=true"></script>
+
+<!--
+    <script src="js/main.js"></script>
+    -->
+
+
+
+<script>
+
+var map;
+var posi = new google.maps.LatLng(10.309235, 123.895130);
+var bounds = null;
+
+// add marker to object
+
+
+
+// var name = 'Neo Neo Grill House';
+
+var locations =[
+  {
+        "id": 0,
+        "name": "Neo Neo Grill House",
+        "Categorie": "finedining",
+        "specialty": "Sisig",
+        "lat": 10.309235,
+        "lng": 123.895130,
+        "state": 'Online',
+        "position": posi,
+        "selected": false
+
+    },
+
+      {
+        "id": 1,
+        "name": "Ipars Restaurant",
+        "Categorie": "finedining",
+        "specialty": "Beef Loaf",
+        "lat": 10.305576,
+        "lng": 123.897891,
+        "selected": false
+    },
+    {
+        "id": 2,
+        "name": "Zubuchon",
+        "Categorie": "grill",
+        "specialty": "Lechon Baboy",
+        "lat": 10.310246,
+        "lng": 123.896512,
+        "state": 'Online',
+        "position": posi,
+        "selected": false
+    },
+    {
+        "id": 3,
+        "name": "Angelica Bakeshop",
+        "Categorie": "bakeshop",
+        "specialty": "SliceBread",
+        "lat": 10.305412,
+        "lng": 123.894933,
+        "state": 'Online',
+        "position": posi,
+        "selected": false
+    }
+ ]
+
+
+      function calculateRoute(from, to) {
+        // Center initialized to Naples, Italy
+        var myOptions = {
+          zoom: 10,
+          center: new google.maps.LatLng(40.84, 14.25),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        // Draw the map
+        var mapObject = new google.maps.Map(document.getElementById("map"), myOptions);
+
+        var directionsService = new google.maps.DirectionsService();
+        var directionsRequest = {
+          origin: from,
+          destination: to,
+          travelMode: google.maps.DirectionsTravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.METRIC
+        };
+        directionsService.route(
+          directionsRequest,
+          function(response, status)
+          {
+            if (status == google.maps.DirectionsStatus.OK)
+            {
+              new google.maps.DirectionsRenderer({
+                map: mapObject,
+                directions: response
+              });
+            }
+            else
+              $("#error").append("Unable to retrieve your route<br />");
+          }
+        );
+      }
+
+
+
+   
+
+
+function initialize() {
+    var selecting = false;
+    $("#btn").click(function(){
+        selecting = true;
+        $("#btn").css("color","red");
+        $(".drag-ins").css("visibility","visible");
+    });
+    var mapOptions = {
+        zoom: 16,
+        center: new google.maps.LatLng(10.309235, 123.895130),
+        mapTypeId: google.maps.MapTypeId.TERRAIN
+    };
+    markers = [];
+
+    map = new google.maps.Map(document.getElementById('map'), mapOptions);
+    var infowindow = new google.maps.InfoWindow();
+    for (var key in locations) {
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(locations[key].lat, locations[key].lng),
+
+            map: map
+
+            
+        });
+        locations[key].marker = marker;
+
+
+	document.getElementById('all-resto').innerHTML += "<div class='items'><div class='res-name'> Name:"+
+    locations[key].name+ "</div><div class='specialty'> Specialty:"+locations[key].specialty + 
+    "</div><div class='type'>category:" +locations[key].Categorie +
+
+    "<form id='calculate-route' name='calculate-route' action='#' method='get'>" +
+  "</br>" +
+    "<div><input type='button' id='toloc' name='to' required='required' placeholder='Another address' class='load-btn button is-success' size='30' value='"+locations[key].lat+","+locations[key].lng+"'>" +
+
+   "<label class='get-direction-label' for='to'>Get Direction:</label></div>" +
+    "</form>"
+    +
+    "</div>" ;
+
+
+$('[name=calculate-route]').on('click', 'input[type=button]', function(){
+   var value = $(this).attr('value');
+   $('#to').val($('#to').val() + value);
+   
+     $('#get_direction').click();
+     $('#to').val('') = '';
+});
+
+
+
+
+        google.maps.event.addListener(marker, 'click', (function (marker, key) {
+            return function () {
+                infowindow.setContent(locations[key].name);
+                infowindow.open(map, marker);
+            }
+        })(marker, key));
+    }
+
+    // Start drag rectangle to select markers !!!!!!!!!!!!!!!!
+    var shiftPressed = false;
+
+    $(window).keydown(function (evt) {
+        if (evt.which === 16) { // shift
+            shiftPressed = true;
+        }
+    }).keyup(function (evt) {
+        if (evt.which === 16) { // shift
+            shiftPressed = false;
+        }
+    });
+
+    var mouseDownPos, gribBoundingBox = null,
+        mouseIsDown = 0;
+    var themap = map;
+
+    google.maps.event.addListener(themap, 'mousemove', function (e) {
+        if (mouseIsDown && (selecting || shiftPressed|| gribBoundingBox != null) ) {
+            if (gribBoundingBox !== null) // box exists
+            {         
+                var newbounds = new google.maps.LatLngBounds(mouseDownPos,null);
+                newbounds.extend(e.latLng);    
+                gribBoundingBox.setBounds(newbounds); 
+
+            } else // create bounding box
+            {
+                 console.log("first move");
+                gribBoundingBox = new google.maps.Rectangle({
+                    map: themap,
+                    bounds: null,
+                    fillOpacity: 0.15,
+                    strokeWeight: 0.9,
+                    clickable: false
+                });
+            }
+        }
+    });
+
+    google.maps.event.addListener(themap, 'mousedown', function (e) {
+        if (selecting || shiftPressed) {
+            mouseIsDown = 1;
+            mouseDownPos = e.latLng;
+            themap.setOptions({
+                draggable: false
+            });
+        }
+    });
+
+    google.maps.event.addListener(themap, 'mouseup', function (e) {
+
+        
+        if (mouseIsDown && (selecting || shiftPressed|| gribBoundingBox != null)) {
+            mouseIsDown = 0;
+            if (gribBoundingBox !== null) // box exists
+            {
+                var boundsSelectionArea = new google.maps.LatLngBounds(gribBoundingBox.getBounds().getSouthWest(), gribBoundingBox.getBounds().getNorthEast());
+                
+                for (var key in locations) { // looping through my Markers Collection	
+
+//                    if (boundsSelectionArea.contains(markers[key].marker.getPosition())) 
+                    if (gribBoundingBox.getBounds().contains(locations[key].marker.getPosition())) 
+                    {
+                        //if(flashMovie !== null && flashMovie !== undefined) {
+                        locations[key].marker.setIcon("http://maps.google.com/mapfiles/ms/icons/blue.png")
+                    document.getElementById('info').innerHTML += "<div class='items'><div class='res-name'> Name:"+locations[key].name+ "</div><div class='specialty'> Specialty:"+locations[key].specialty + 
+                    "</div><div class='type'>category:" +locations[key].Categorie +"</div>" +
+                  "<form id='calculate-route' name='calculate-route' action='#' method='get'>" +
+                  "</br>" +
+                  "<div><input type='button' id='toloc' name='to' required='required' placeholder='Another address' class='load-btn button is-success' size='30' value='"+locations[key].lat+","+locations[key].lng+"'>" +
+                  "<label class='get-direction-label' for='to'>Get Direction:</label></div>" +
+                  "</form>" +
+                  "</div>" ;
+
+
+                    $('[name=calculate-route]').on('click', 'input[type=button]', function(){
+                      var value = $(this).attr('value');
+                      $('#to').val($('#to').val() + value);
+                      
+                        $('#get_direction').click();
+                        $('#to').val('') = '';
+                    });
+
+
+              
+                    } else {
+                        //unselected markers
+                        //if(flashMovie !== null && flashMovie !== undefined) {
+                        locations[key].marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red.png")
+                    document.getElementById('unsel-resto').innerHTML += "<div class='items'><div class='res-name'> Name:"+locations[key].name+ "</div><div class='specialty'> Specialty:"+locations[key].specialty + 
+                    "</div><div class='type'>category:" +locations[key].Categorie +"</div>" +
+                    "<form id='calculate-route' name='calculate-route' action='#' method='get'>" +
+                    "</br>" +
+                    "<div><input type='button' id='toloc' name='to' required='required' placeholder='Another address' class='load-btn button is-success' size='30' value='"+locations[key].lat+","+locations[key].lng+"'>" +
+                    "<label class='get-direction-label' for='to'>Get Direction:</label></div>" +
+                    "</form>" +
+                    " </div>" ;
+
+
+     
+                  $('[name=calculate-route]').on('click', 'input[type=button]', function(){
+                    var value = $(this).attr('value');
+                    $('#to').val($('#to').val() + value);
+                    
+                      $('#get_direction').click();
+                      $('#to').val('') = '';
+                  });
+
+                        //} 
+                    }
+                }
+
+  
+                        
+
+                gribBoundingBox.setMap(null); // remove the rectangle
+            }
+            gribBoundingBox = null;
+            selecting = false;
+            $("#btn").css("color","black");
+             $(".drag-ins").css("visibility","hidden");
+        }
+
+        themap.setOptions({
+            draggable: true
+        });
+        //stopDraw(e);
+    });
+
+
+
+
+}
+
+</script>
+  </body>
+</html>
